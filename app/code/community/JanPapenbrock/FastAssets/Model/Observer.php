@@ -45,6 +45,11 @@ class JanPapenbrock_FastAssets_Model_Observer
      */
     public function onCronCompile()
     {
+        // do nothing if asynchronous compiling is disabled
+        if (!$this->getHelper()->compileAsynchronously()) {
+            return "";
+        }
+
         $results = array('success' => array(), 'error' => array());
 
         $cacheHelper = $this->getCacheHelper();

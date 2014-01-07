@@ -20,6 +20,16 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
     protected $_assets = null;
 
     /**
+     * Get FastAssets helper.
+     *
+     * @return JanPapenbrock_FastAssets_Helper_Data
+     */
+    protected function getHelper()
+    {
+        return Mage::helper("fast_assets");
+    }
+
+    /**
      * Get caching helper.
      *
      * @return JanPapenbrock_FastAssets_Helper_Cache
@@ -48,10 +58,18 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
         $assetPath = $this->getPathForHash($hash);
 
         if (file_exists($assetPath)) {
+            // deliver the existing file
             $assetPath = $this->getPathForHash($hash, false);
         } else {
-            $this->cacheForAsynchronousMerge($assets, $hash);
-            $assetPath = null;
+            if ($this->getHelper()->compileAsynchronously()) {
+                // generate file asynchronously
+                $this->cacheForAsynchronousMerge($assets, $hash);
+                // this request does not use a single asset file
+                $assetPath = null;
+            } else {
+                // generate file now and deliver it
+                $assetPath = $this->merge($assets, $hash);
+            }
         }
 
         if ($assetPath) {
