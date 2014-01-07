@@ -3,9 +3,10 @@
 class JanPapenbrock_FastAssets_Helper_Data extends Mage_Core_Helper_Abstract
 {
 
-    const CONFIG_ASSETS_ENABLED         = 'dev/fast_assets/enabled';
-    const CONFIG_ASSET_TYPE_ENABLED     = 'dev/fast_assets/%s_enabled';
-    const CONFIG_COMPILE_ASYNCHRONOUSLY = 'dev/fast_assets/compile_asynchronously';
+    const CONFIG_ASSETS_ENABLED          = 'dev/fast_assets/enabled';
+    const CONFIG_ASSET_TYPE_ENABLED      = 'dev/fast_assets/%s_enabled';
+    const CONFIG_COMPILE_ASYNCHRONOUSLY  = 'dev/fast_assets/compile_asynchronously';
+    const CONFIG_STORE_IN_SKIN_TOP_LEVEL = 'dev/fast_assets/store_files_in_skin_top_level';
 
     const MAGE_CONFIG_MERGE_FILES   = 'dev/%s/merge_files';
 
@@ -49,7 +50,7 @@ class JanPapenbrock_FastAssets_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**
-     * Check if assetd should be generated asynchronously.
+     * Check if assets should be generated asynchronously.
      *
      * @return bool
      */
@@ -57,4 +58,16 @@ class JanPapenbrock_FastAssets_Helper_Data extends Mage_Core_Helper_Abstract
     {
         return Mage::getStoreConfigFlag(self::CONFIG_COMPILE_ASYNCHRONOUSLY);
     }
+
+    /**
+     * Check if assets should be stored in a directory directly in {MAGENTO-ROOT}/skin/.
+     *
+     * @return bool
+     */
+    public function storeInSkinTopLevel()
+    {
+        return Mage::getStoreConfigFlag(self::CONFIG_STORE_IN_SKIN_TOP_LEVEL);
+    }
+
+
 }

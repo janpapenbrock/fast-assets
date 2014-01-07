@@ -9,6 +9,8 @@
  */
 abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core_Model_Abstract
 {
+    const DIR_NAME = 'fast-assets';
+
     /**
      * Should be set by child classes.
      */
@@ -226,9 +228,23 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
     protected function getPathForHash($hash, $includeBaseDir = true)
     {
         $path = sprintf($this->_precompilePath, $hash);
+
+        if (!$includeBaseDir || !$this->getHelper()->storeInSkinTopLevel()) {
+            // prefix with dir name
+            $path = self::DIR_NAME . DS . $path;
+        }
+
         if ($includeBaseDir) {
             $designPackage = Mage::getDesign();
-            $path = $designPackage->getSkinBaseDir(array()) . DS . $path;
+            $baseDir = $designPackage->getSkinBaseDir(array());
+
+            if ($this->getHelper()->storeInSkinTopLevel()) {
+                $skinDir       = Mage::getBaseDir('skin');
+                $fastAssetsDir = $skinDir . DS . self::DIR_NAME;
+                $baseDir       = str_replace($skinDir, $fastAssetsDir, $baseDir);
+            }
+
+            $path = $baseDir . DS . $path;
         }
         return $path;
     }

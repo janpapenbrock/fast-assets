@@ -8,7 +8,7 @@ class JanPapenbrock_FastAssets_Model_Builder_Js extends JanPapenbrock_FastAssets
 
     protected $_type           = "js";
     protected $_assetType      = "skin_js";
-    protected $_precompilePath = "fast-assets/js/scripts-%s.js";
+    protected $_precompilePath = "js/scripts-%s.js";
     protected $_itemTypes      = array("js", "skin_js");
 
 }
