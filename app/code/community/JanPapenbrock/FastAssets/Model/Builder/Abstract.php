@@ -16,6 +16,7 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
      */
     protected $_type;
     protected $_assetType;
+    protected $_assetBlock;
     protected $_itemTypes;
     protected $_precompilePath;
 
@@ -44,7 +45,7 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
     /**
      * Merge assets in layout 'head' and replace them with single merged asset.
      *
-     * @return void
+     * @return string
      */
     public function replaceAssets()
     {
@@ -57,11 +58,12 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
             $hash = $this->calculateAssetsHash($assets);
         }
 
-        $assetPath = $this->getPathForHash($hash);
+        $assetFile = $this->getPathForHashWithBase($hash);
+        $assetPath = null;
 
-        if (file_exists($assetPath)) {
+        if (file_exists($assetFile)) {
             // deliver the existing file
-            $assetPath = $this->getPathForHash($hash, false);
+            $assetPath = $this->getNameForHash($hash);
         } else {
             if ($this->getHelper()->compileAsynchronously()) {
                 // generate file asynchronously
@@ -76,12 +78,16 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
 
         if ($assetPath) {
             $this->removeAssets();
-            $this->addAsset($assetPath);
+            $html = $this->addAsset($assetPath, $hash);
 
             if (!$hashFromCache) {
                 $cache->setAssetHash($this->_type, $hash);
             }
+
+            return $html;
         }
+
+        return "";
     }
 
     /**
@@ -131,13 +137,15 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
 
         $contents = implode("\n", $contents);
         if (!$saveTo) {
-            $saveTo = $this->getPathForHash($hash);
+            $saveTo = $this->getPathForHashWithBase($hash);
         }
         $writeSuccess = $this->writeFile($saveTo, $contents);
 
         if ($writeSuccess) {
-            return $this->getPathForHash($hash, false);
+            return $this->getNameForHash($hash);
         }
+
+        return false;
     }
 
     /**
@@ -157,7 +165,7 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
             'assets'   => $assets,
             'hash'     => $hash,
             'type'     => $this->_type,
-            'save_to'  => $this->getPathForHash($hash),
+            'save_to'  => $this->getPathForHashWithBase($hash),
             'base_url' => $this->getBaseUrl()
         );
 
@@ -218,33 +226,57 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
     }
 
     /**
-     * Get file path for a given asset hash.
+     * Return full filesystem path for an asset file with given hash.
      *
-     * @param string $hash           Asset hash.
-     * @param bool   $includeBaseDir Whether to include Mage base dir to path.
+     * @param string $hash Asset file hash.
      *
      * @return string
      */
-    protected function getPathForHash($hash, $includeBaseDir = true)
+    protected function getPathForHashWithBase($hash)
     {
-        $path = sprintf($this->_precompilePath, $hash);
+        $designPackage = Mage::getDesign();
+        $baseDir = $designPackage->getSkinBaseDir(array());
 
-        if (!$includeBaseDir || !$this->getHelper()->storeInSkinTopLevel()) {
-            // prefix with dir name
-            $path = self::DIR_NAME . DS . $path;
+        if ($this->getHelper()->storeInSkinTopLevel()) {
+            $name = $this->getNameForHash($hash, false);
+
+            $skinDir       = Mage::getBaseDir('skin');
+            $fastAssetsDir = $skinDir . DS . self::DIR_NAME;
+            $baseDir       = str_replace($skinDir, $fastAssetsDir, $baseDir);
+        } else {
+            $name = $this->getNameForHash($hash);
         }
 
-        if ($includeBaseDir) {
-            $designPackage = Mage::getDesign();
-            $baseDir = $designPackage->getSkinBaseDir(array());
+        $path = $baseDir . DS . $name;
+        return $path;
+    }
 
-            if ($this->getHelper()->storeInSkinTopLevel()) {
-                $skinDir       = Mage::getBaseDir('skin');
-                $fastAssetsDir = $skinDir . DS . self::DIR_NAME;
-                $baseDir       = str_replace($skinDir, $fastAssetsDir, $baseDir);
-            }
+    /**
+     * Get path asset file for the given hash, relative to magento root.
+     *
+     * @param string $hash Asset hash.
+     *
+     * @return string
+     */
+    protected function getPathForHash($hash)
+    {
+        $path = $this->getPathForHashWithBase($hash);
+        return str_replace(Mage::getBaseDir() . DS, "", $path);
+    }
 
-            $path = $baseDir . DS . $path;
+    /**
+     * Get file path for a given asset hash.
+     *
+     * @param string $hash       Asset hash.
+     * @param bool   $prependDir Whether to prepend the directory name.
+     *
+     * @return string
+     */
+    protected function getNameForHash($hash, $prependDir = true)
+    {
+        $path = sprintf($this->_precompilePath, $hash);
+        if ($prependDir) {
+            $path = self::DIR_NAME . DS . $path;
         }
         return $path;
     }
@@ -267,13 +299,30 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
      * Add an asset to the layout.
      *
      * @param string $name Asset name.
+     * @param string $hash Asset hash.
      *
-     * @return void
+     * @return string
      */
-    protected function addAsset($name)
+    protected function addAsset($name, $hash)
     {
         $head = $this->getHead();
-        $head->addItem($this->_assetType, $name);
+
+        if (!$head) {
+            return;
+        }
+
+        if ($this->getHelper()->storeInSkinTopLevel()) {
+            $asset = array(
+                'name' => $this->getPathForHash($hash),
+                'type' => 'custom'
+            );
+            $url = $this->getAssetUrl($asset);
+            $assetHtml = sprintf($this->_assetBlock, $url);
+            return $assetHtml;
+        } else {
+            $head->addItem($this->_assetType, $name);
+        }
+        return "";
     }
 
     /**

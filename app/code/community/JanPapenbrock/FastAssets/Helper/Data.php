@@ -69,5 +69,23 @@ class JanPapenbrock_FastAssets_Helper_Data extends Mage_Core_Helper_Abstract
         return Mage::getStoreConfigFlag(self::CONFIG_STORE_IN_SKIN_TOP_LEVEL);
     }
 
+    /**
+     * Get builder for the given type, if enabled.
+     *
+     * @param string $type Builder type.
+     *
+     * @return JanPapenbrock_FastAssets_Model_Builder_Abstract|null
+     */
+    public function getBuilder($type)
+    {
+        if (!$this->assetTypeEnabled($type)) {
+            return null;
+        }
+
+        $klass = sprintf('fast_assets/builder_%s', $type);
+        $builder = Mage::getModel($klass);
+
+        return $builder;
+    }
 
 }

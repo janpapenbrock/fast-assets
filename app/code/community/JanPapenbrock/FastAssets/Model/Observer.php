@@ -15,27 +15,7 @@ class JanPapenbrock_FastAssets_Model_Observer
      */
     public function onLayoutReady($observer)
     {
-        $helper = $this->getHelper();
-        if (!$helper->assetsEnabled()) {
-            return;
-        }
 
-        /** @var Mage_Core_Model_Layout $layout */
-        $layout = $observer->getEvent()->getLayout();
-
-        if (!$layout) {
-            return;
-        }
-
-        $builderTypes = array( 'css', 'js' );
-        foreach ($builderTypes as $builderType) {
-            $builder = $this->getBuilder($builderType);
-            if (!$builder) {
-                continue;
-            }
-            $builder->setLayout($layout);
-            $builder->replaceAssets();
-        }
     }
 
     /**
@@ -56,7 +36,7 @@ class JanPapenbrock_FastAssets_Model_Observer
         $requests = $cacheHelper->flushMergeRequests();
         foreach ($requests as $request) {
             $type = $request['type'];
-            $builder = $this->getBuilder($type);
+            $builder = $this->getHelper()->getBuilder($type);
             $result = null;
             if ($builder) {
                 $result = $builder->asynchronousMerge($request);
@@ -88,25 +68,6 @@ class JanPapenbrock_FastAssets_Model_Observer
         }
 
         return "";
-    }
-
-    /**
-     * Get builder for the given type, if enabled.
-     *
-     * @param string $type Builder type.
-     *
-     * @return JanPapenbrock_FastAssets_Model_Builder_Abstract|null
-     */
-    protected function getBuilder($type)
-    {
-        if (!$this->getHelper()->assetTypeEnabled($type)) {
-            return null;
-        }
-
-        $klass = sprintf('fast_assets/builder_%s', $type);
-        $builder = Mage::getModel($klass);
-
-        return $builder;
     }
 
     /**
