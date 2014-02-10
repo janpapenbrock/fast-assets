@@ -237,11 +237,12 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
         $designPackage = Mage::getDesign();
         $baseDir = $designPackage->getSkinBaseDir(array());
 
-        if ($this->getHelper()->storeInSkinTopLevel()) {
+        if ($this->getHelper()->storeInMediaDir()) {
             $name = $this->getNameForHash($hash, false);
 
             $skinDir       = Mage::getBaseDir('skin');
-            $fastAssetsDir = $skinDir . DS . self::DIR_NAME;
+            $mediaDir      = Mage::getBaseDir('media');
+            $fastAssetsDir = $mediaDir . DS . self::DIR_NAME;
             $baseDir       = str_replace($skinDir, $fastAssetsDir, $baseDir);
         } else {
             $name = $this->getNameForHash($hash);
@@ -311,7 +312,7 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
             return;
         }
 
-        if ($this->getHelper()->storeInSkinTopLevel()) {
+        if ($this->getHelper()->storeInMediaDir()) {
             $asset = array(
                 'name' => $this->getPathForHash($hash),
                 'type' => 'custom'

@@ -24,18 +24,18 @@
                             <show_in_store>1</show_in_store>
                         </enabled>
                         <js_enabled translate="label comment">
-                            <label>Enable JavaScript compilation</label>
+                            <label>JavaScript compilation</label>
                             <frontend_type>select</frontend_type>
-                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <source_model>adminhtml/system_config_source_enabledisable</source_model>
                             <sort_order>20</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </js_enabled>
                         <css_enabled translate="label comment">
-                            <label>Enable CSS compilation</label>
+                            <label>CSS compilation</label>
                             <frontend_type>select</frontend_type>
-                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <source_model>adminhtml/system_config_source_enabledisable</source_model>
                             <sort_order>30</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
@@ -43,6 +43,7 @@
                         </css_enabled>
                         <compile_asynchronously translate="label comment">
                             <label>Compile asynchronously (using cron)</label>
+                            <comment>Lowers site performance impact for first users.</comment>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                             <sort_order>40</sort_order>
@@ -50,16 +51,16 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </compile_asynchronously>
-                        <store_files_in_skin_top_level translate="label comment">
-                            <label>Store files on top level of skin dir (instead of per theme)</label>
-                            <comment>E.g. if the assets have to be shared across webservers.</comment>
+                        <store_files_in_media translate="label comment">
+                            <label>Store files in media dir (instead of per theme in skin)</label>
+                            <comment>Useful if the assets have to be shared across webservers.</comment>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
                             <sort_order>50</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </store_files_in_skin_top_level>
+                        </store_files_in_media>
                     </fields>
                 </fast_assets>
             </groups>
