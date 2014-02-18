@@ -61,22 +61,25 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
         $assetFile = $this->getPathForHashWithBase($hash);
         $assetPath = null;
 
-        if (file_exists($assetFile)) {
-            // deliver the existing file
-            $assetPath = $this->getNameForHash($hash);
-        } else {
+        $assetValidMarker = $cache->getAssetValid($this->_type, $hash);
+        $assetFileExists  = file_exists($assetFile);
+
+        $assetValid = $assetValidMarker && $assetFileExists;
+
+        if (!$assetValid) {
             if ($this->getHelper()->compileAsynchronously()) {
                 // generate file asynchronously
                 $this->cacheForAsynchronousMerge($assets, $hash);
-                // this request does not use a single asset file
-                $assetPath = null;
             } else {
                 // generate file now and deliver it
-                $assetPath = $this->merge($assets, $hash);
+                $this->merge($assets, $hash);
+                $assetValid = true;
             }
         }
 
-        if ($assetPath) {
+        if ($assetValid) {
+            $assetPath = $this->getNameForHash($hash);
+
             $this->removeAssets();
             $html = $this->addAsset($assetPath, $hash);
 
@@ -142,6 +145,7 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
         $writeSuccess = $this->writeFile($saveTo, $contents);
 
         if ($writeSuccess) {
+            $this->getCacheHelper()->setAssetValid($this->_type, $hash);
             return $this->getNameForHash($hash);
         }
 
@@ -481,7 +485,7 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
 
         $md5  = md5($concatenatedHashes);
         $sha1 = sha1($concatenatedHashes);
-        return substr($md5, 0, 4).substr($sha1, 0, 4);
+        return substr($md5, 0, 16).substr($sha1, 0, 16);
     }
 
     /**
