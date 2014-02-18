@@ -3,8 +3,11 @@
 class JanPapenbrock_FastAssets_Helper_Cache extends Mage_Core_Helper_Abstract
 {
 
-    const ASSET_CACHE_KEY = 'fast_assets_hash_%s_%d_%s';
+    const ASSET_ACTION_CACHE_KEY   = 'fast_assets_hash_%s_%d_%s';
+    const ASSET_VALID_CACHE_KEY    = 'fast_assets_hash_%s_%d_%s';
     const MERGE_REQUESTS_CACHE_KEY = 'fast_assets_merges';
+
+    const CACHE_TAG = 'FAST_ASSETS_CACHE_TAG';
 
     /**
      * Add a merge request to the cache.
@@ -54,11 +57,35 @@ class JanPapenbrock_FastAssets_Helper_Cache extends Mage_Core_Helper_Abstract
     protected function setMergeRequests($requests)
     {
         $cacheContents = serialize($requests);
-        Mage::app()->saveCache(
-            $cacheContents,
-            self::MERGE_REQUESTS_CACHE_KEY,
-            array(Mage_Core_Model_Layout_Update::LAYOUT_GENERAL_CACHE_TAG)
-        );
+        $this->saveCache($cacheContents, self::MERGE_REQUESTS_CACHE_KEY);
+    }
+
+    /**
+     * Return whether asset defined by type and hash is marked as valid in cache.
+     *
+     * @param string $type Asset type.
+     * @param string $hash Hash.
+     *
+     * @return bool
+     */
+    public function getAssetValid($type, $hash)
+    {
+        $cacheId = $this->getAssetValidCacheId($type, $hash);
+        return (bool) Mage::app()->loadCache($cacheId);
+    }
+
+    /**
+     * Mark asset defined by given type and hash as valid.
+     *
+     * @param string $type Asset type.
+     * @param string $hash Hash.
+     *
+     * @return void
+     */
+    public function setAssetValid($type, $hash)
+    {
+        $cacheId = $this->getAssetValidCacheId($type, $hash);
+        $this->saveCache(1, $cacheId);
     }
 
     /**
@@ -70,7 +97,7 @@ class JanPapenbrock_FastAssets_Helper_Cache extends Mage_Core_Helper_Abstract
      */
     public function getAssetHash($type)
     {
-        $cacheId = $this->getAssetCacheId($type);
+        $cacheId = $this->getAssetActionCacheId($type);
         return Mage::app()->loadCache($cacheId);
     }
 
@@ -84,8 +111,24 @@ class JanPapenbrock_FastAssets_Helper_Cache extends Mage_Core_Helper_Abstract
      */
     public function setAssetHash($type, $hash)
     {
-        $cacheId = $this->getAssetCacheId($type);
-        Mage::app()->saveCache($hash, $cacheId, array(Mage_Core_Model_Layout_Update::LAYOUT_GENERAL_CACHE_TAG));
+        $cacheId = $this->getAssetActionCacheId($type);
+        $this->saveCache($hash, $cacheId);
+    }
+
+    /**
+     * Generate asset valid cache id for asset type and hash.
+     *
+     * @param string $type Asset type.
+     * @param string $hash Asset hash.
+     *
+     * @return string
+     */
+    protected function getAssetValidCacheId($type, $hash)
+    {
+        $store = Mage::App()->getStore();
+        $storeId = $store->getId();
+
+        return sprintf(self::ASSET_VALID_CACHE_KEY, $type, $storeId, $hash);
     }
 
     /**
@@ -95,14 +138,14 @@ class JanPapenbrock_FastAssets_Helper_Cache extends Mage_Core_Helper_Abstract
      *
      * @return string
      */
-    protected function getAssetCacheId($type)
+    protected function getAssetActionCacheId($type)
     {
         $store = Mage::App()->getStore();
         $storeId = $store->getId();
 
         $actionKey = strtolower($this->getFullActionName());
 
-        return sprintf(self::ASSET_CACHE_KEY, $type, $storeId, $actionKey);
+        return sprintf(self::ASSET_ACTION_CACHE_KEY, $type, $storeId, $actionKey);
     }
 
     /**
@@ -123,5 +166,20 @@ class JanPapenbrock_FastAssets_Helper_Cache extends Mage_Core_Helper_Abstract
                 Mage::app()->getRequest()->getActionName(),
             )
         );
+    }
+
+    /**
+     * Write value to cache.
+     *
+     * @param string   $data     Data to write.
+     * @param string   $id       Cache key.
+     * @param int|null $lifeTime Life time of value.
+     *
+     * @return Mage_Core_Model_App
+     */
+    protected function saveCache($data, $id, $lifeTime = false)
+    {
+        $tags = array(self::CACHE_TAG);
+        return Mage::app()->saveCache($data, $id, $lifeTime);
     }
 }
