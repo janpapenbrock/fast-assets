@@ -7,7 +7,7 @@ class JanPapenbrock_FastAssets_Helper_Cache extends Mage_Core_Helper_Abstract
     const ASSET_VALID_CACHE_KEY    = 'fast_assets_hash_%s_%d_%s';
     const MERGE_REQUESTS_CACHE_KEY = 'fast_assets_merges';
 
-    const CACHE_TAG = 'FAST_ASSETS_CACHE_TAG';
+    const CACHE_TAG = 'FAST_ASSETS';
 
     /**
      * Add a merge request to the cache.
@@ -180,6 +180,6 @@ class JanPapenbrock_FastAssets_Helper_Cache extends Mage_Core_Helper_Abstract
     protected function saveCache($data, $id, $lifeTime = false)
     {
         $tags = array(self::CACHE_TAG);
-        return Mage::app()->saveCache($data, $id, $lifeTime);
+        return Mage::app()->saveCache($data, $id, $tags, $lifeTime);
     }
 }

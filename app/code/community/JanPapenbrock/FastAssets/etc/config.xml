@@ -23,6 +23,16 @@
                 </rewrite>
             </page>
         </blocks>
+        <cache>
+            <types>
+                <fast_assets translate="label,description" module="fast_assets">
+                    <label><![CDATA[Fast Assets]]></label>
+                    <description><![CDATA[Compiled CSS and JS asset files.]]></description>
+                    <tags>FAST_ASSETS</tags>
+                    <enable>1</enable>
+                </fast_assets>
+            </types>
+        </cache>
     </global>
     <frontend>
         <events>
