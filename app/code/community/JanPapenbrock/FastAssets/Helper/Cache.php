@@ -16,8 +16,11 @@ class JanPapenbrock_FastAssets_Helper_Cache extends Mage_Core_Helper_Abstract
      */
     public function purge()
     {
+        $tags = array(self::CACHE_TAG);
+        Mage::dispatchEvent('fast_assets_clean_cache_before', array('tags' => $tags));
         $cacheInstance = Mage::app()->getCacheInstance();
-        $cacheInstance->clean(array(self::CACHE_TAG));
+        $cacheInstance->clean($tags);
+        Mage::dispatchEvent('fast_assets_clean_cache_after', array('tags' => $tags));
     }
 
     /**
