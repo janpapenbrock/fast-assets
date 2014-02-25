@@ -4,6 +4,29 @@ class JanPapenbrock_FastAssets_Model_Observer
 {
 
     /**
+     * Catch adminhtml_cache_flush_system event to purge our cache.
+     *
+     * @return void
+     */
+    public function cacheFlushSystem()
+    {
+        $this->getCacheHelper()->purge();
+    }
+
+    /**
+     * Catch adminhtml_cache_refresh_type event to purge our cache,
+     * if type refresh is requested.
+     *
+     * @param Varien_Event_Observer $observer Event observer.
+     *
+     * @return void
+     */
+    public function cacheRefreshType($observer)
+    {
+        $type = $observer->getType();
+        $this->getCacheHelper()->purgeIfTypeMatches($type);
+    }
+    /**
      * When layout xml is built, handle assets.
      *
      * If fast asset file was built, use it in layout.

@@ -7,7 +7,8 @@ class JanPapenbrock_FastAssets_Helper_Cache extends Mage_Core_Helper_Abstract
     const ASSET_VALID_CACHE_KEY    = 'fast_assets_hash_%s_%d_%s';
     const MERGE_REQUESTS_CACHE_KEY = 'fast_assets_merges';
 
-    const CACHE_TAG = 'FAST_ASSETS';
+    const CACHE_TAG  = 'FAST_ASSETS';
+    const CACHE_TYPE = 'fast_assets';
 
     /**
      * Purge fast assets cache.
@@ -21,6 +22,21 @@ class JanPapenbrock_FastAssets_Helper_Cache extends Mage_Core_Helper_Abstract
         $cacheInstance = Mage::app()->getCacheInstance();
         $cacheInstance->clean($tags);
         Mage::dispatchEvent('fast_assets_clean_cache_after', array('tags' => $tags));
+    }
+
+    /**
+     * Check whether the given cache type matches our cache type.
+     * If it matches, purge our cache.
+     *
+     * @param string $type Cache type which is refreshed.
+     *
+     * @return void
+     */
+    public function purgeIfTypeMatches($type)
+    {
+        if ($type == self::CACHE_TYPE) {
+            $this->purge();
+        }
     }
 
     /**

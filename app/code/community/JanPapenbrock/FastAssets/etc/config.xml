@@ -28,12 +28,33 @@
                 <fast_assets translate="label,description" module="fast_assets">
                     <label><![CDATA[Fast Assets]]></label>
                     <description><![CDATA[Compiled CSS and JS asset files.]]></description>
-                    <tags>FAST_ASSETS</tags>
-                    <enable>1</enable>
+                    <tags />
                 </fast_assets>
             </types>
         </cache>
     </global>
+    <adminhtml>
+        <events>
+            <adminhtml_cache_refresh_type>
+                <observers>
+                    <fast_assets>
+                        <class>fast_assets/observer</class>
+                        <type>singleton</type>
+                        <method>cacheRefreshType</method>
+                    </fast_assets>
+                </observers>
+            </adminhtml_cache_refresh_type>
+            <adminhtml_cache_flush_system>
+                <observers>
+                    <fast_assets>
+                        <class>fast_assets/observer</class>
+                        <type>singleton</type>
+                        <method>cacheFlushSystem</method>
+                    </fast_assets>
+                </observers>
+            </adminhtml_cache_flush_system>
+        </events>
+    </adminhtml>
     <frontend>
         <events>
             <controller_action_layout_generate_blocks_after>
