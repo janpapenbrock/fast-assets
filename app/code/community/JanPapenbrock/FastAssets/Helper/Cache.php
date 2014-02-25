@@ -10,6 +10,17 @@ class JanPapenbrock_FastAssets_Helper_Cache extends Mage_Core_Helper_Abstract
     const CACHE_TAG = 'FAST_ASSETS';
 
     /**
+     * Purge fast assets cache.
+     *
+     * @return void
+     */
+    public function purge()
+    {
+        $cacheInstance = Mage::app()->getCacheInstance();
+        $cacheInstance->clean(array(self::CACHE_TAG));
+    }
+
+    /**
      * Add a merge request to the cache.
      *
      * @param array $data The merge request data.
