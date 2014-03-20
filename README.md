@@ -3,12 +3,18 @@ fast-assets
 
 Magento CSS and JavaScript - the fast way.
 
+Don't slow down your users by having them to load 15 JS and 5 CSS files on their first visit to ye grande Magento shoppe.
+
+This module collects all JS and CSS before delivering the page, merges them, does some minifying magic and - ta da - your user has to make 1 JS and 1 CSS request exactly.
+
+For excellent performance, compiled CSS and JS files are stored in the filesystem. For each controller action a different compiled file is possible, and therefore the association between controller action and filename is stored in cache for a configurable time.
+
 Features
 --------
 
-- Option to use dir on top level instead of inside skin directories
-- Option to switch between synchronous and asynchronous merge of JS/CSS files
-
+- Multi-store ready
+- Multi-server / NFS-share ready (option to use dir on top level instead of inside skin directories)
+- Full Page Cache (i.e. Varnish) ready (option to switch between synchronous and asynchronous merge of JS/CSS files)
 
 To do
 -----
