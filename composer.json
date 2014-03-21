@@ -4,8 +4,22 @@
     "license": "MIT",
     "description": "Fast CSS and JS assets for your store frontend.",
     "homepage": "https://github.com/janpapenbrock/fast-assets",
+    "authors": [
+        {
+            "name": "Jan Papenbrock",
+            "email": "jan@solvium.de",
+            "homepage": "http://janpapenbrock.de",
+            "role": "Developer"
+        }
+    ],
     "require": {
+        "php": ">=5.3.0",
         "magento-hackathon/magento-composer-installer": "*"
+    },
+    "require-dev": {
+        "ecomdev/ecomdev_phpunit": "*",
+        "ecomdev/mage-ci": "*",
+        "phpunit/phpunit": "3.7.*"
     },
     "repositories": [
         {
