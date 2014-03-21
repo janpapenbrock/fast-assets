@@ -87,4 +87,11 @@
             </fast_assets_compile>
         </jobs>
     </crontab>
+    <phpunit>
+        <suite>
+            <modules>
+                <JanPapenbrock_FastAssets />
+            </modules>
+        </suite>
+    </phpunit>
 </config>
