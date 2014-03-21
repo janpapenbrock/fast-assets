@@ -31,6 +31,9 @@
             "url": "http://packages.firegento.com"
         }
     ],
+    "config": {
+        "bin-dir": "bin"
+    },
     "extra": {
         "magento-root-dir": "test/"
     }
