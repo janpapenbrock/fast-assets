@@ -1,0 +1,16 @@
+{
+    "name": "janpapenbrock/fast-assets",
+    "type": "magento-module",
+    "license": "MIT",
+    "description": "Fast CSS and JS assets for your store frontend.",
+    "homepage": "https://github.com/janpapenbrock/fast-assets",
+    "require": {
+        "magento-hackathon/magento-composer-installer": "*"
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "http://packages.firegento.com"
+        }
+    ]
+}
