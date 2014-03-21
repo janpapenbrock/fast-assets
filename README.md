@@ -1,6 +1,8 @@
 fast-assets
 ===========
 
+[![Build Status](https://travis-ci.org/janpapenbrock/fast-assets.svg)](https://travis-ci.org/janpapenbrock/fast-assets)
+
 Magento CSS and JavaScript - the fast way.
 
 Don't slow down your users by having them to load 15 JS and 5 CSS files on their first visit to ye grande Magento shoppe.
