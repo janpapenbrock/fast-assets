@@ -17,6 +17,6 @@ before_script:
   - git clone https://github.com/EcomDev/EcomDev_PHPUnit.git -b dev ./phpunit/
   - bin/mage-ci install-module $CURR_DIR/test $CURR_DIR/phpunit/
 script:
-  - bin/mage-ci phpunit --coverage-clover build/logs/clover.xml test
+  - bin/mage-ci phpunit test --coverage-clover build/logs/clover.xml
 after_script:
   - php bin/coveralls -v
