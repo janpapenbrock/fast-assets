@@ -19,4 +19,7 @@ before_script:
 script:
   - bin/mage-ci phpunit test --coverage-clover build/logs/clover.xml
 after_script:
+  - cat build/logs/clover.xml
+  - cat bin/build/logs/clover.xml
   - php bin/coveralls -v
+
