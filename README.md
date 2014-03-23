@@ -22,6 +22,7 @@ To do
 -----
 
 - Full unit tests
+- Option to specify pattern to decide which files should be pulled with cURL and load others from disk via file path
 - Option for specifying cache value lifetime
 - Option to minify JS/CSS files, probably using https://github.com/tedivm/JShrink (JS) and https://github.com/tubalmartin/YUI-CSS-compressor-PHP-port (CSS)
 - Add hooks to cache clearing actions to clear fast-assets cache values
