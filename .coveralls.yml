@@ -1,2 +1,3 @@
 src_dir: .
+json_path: .
 coverage_clover: test/build/logs/clover.xml
