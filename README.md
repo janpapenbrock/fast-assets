@@ -1,7 +1,7 @@
 fast-assets
 ===========
 
-[![Build Status](https://travis-ci.org/janpapenbrock/fast-assets.svg)](https://travis-ci.org/janpapenbrock/fast-assets)
+[![Build Status](https://travis-ci.org/janpapenbrock/fast-assets.svg)](https://travis-ci.org/janpapenbrock/fast-assets) [![Coverage Status](https://coveralls.io/repos/janpapenbrock/fast-assets/badge.png)](https://coveralls.io/r/janpapenbrock/fast-assets)
 
 Magento CSS and JavaScript - the fast way.
 
