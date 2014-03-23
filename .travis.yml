@@ -17,8 +17,8 @@ before_script:
   - git clone https://github.com/EcomDev/EcomDev_PHPUnit.git -b dev ./phpunit/
   - bin/mage-ci install-module $CURR_DIR/test $CURR_DIR/phpunit/
 script:
+  # clover.xml will reside in test/build/logs/clover.xml
   - bin/mage-ci phpunit test --coverage-clover build/logs/clover.xml
 after_script:
-  - find . -name "clover.xml"
   - php bin/coveralls -v
 
