@@ -19,7 +19,8 @@
     "require-dev": {
         "ivanchepurnyi/ecomdev_phpunit": "dev-dev",
         "ecomdev/mage-ci": "*",
-        "phpunit/phpunit": "3.7.*"
+        "phpunit/phpunit": "3.7.*",
+        "satooshi/php-coveralls": "dev-master"
     },
     "repositories": [
         {
