@@ -1,7 +1,7 @@
 fast-assets
 ===========
 
-[![Build Status](https://travis-ci.org/janpapenbrock/fast-assets.svg)](https://travis-ci.org/janpapenbrock/fast-assets) [![Coverage Status](https://coveralls.io/repos/janpapenbrock/fast-assets/badge.png)](https://coveralls.io/r/janpapenbrock/fast-assets)
+[![Build Status](https://travis-ci.org/janpapenbrock/fast-assets.svg)](https://travis-ci.org/janpapenbrock/fast-assets) [![Coverage Status](https://coveralls.io/repos/janpapenbrock/fast-assets/badge.png)](https://coveralls.io/r/janpapenbrock/fast-assets) [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/janpapenbrock/fast-assets/badges/quality-score.png?s=dda9c472028f7b38b3a06a3425d4a682b224282f)]
 
 Magento CSS and JavaScript - the fast way.
 
