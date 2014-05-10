@@ -61,6 +61,15 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </store_files_in_media>
+                        <external_asset_path_regex translate="label comment">
+                            <label>RegEx for external assets</label>
+                            <comment>Regular expression matching asset files which should be merged by getting them with cURL instead of from local filesystem. Will be passed to preg_match().</comment>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>60</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </external_asset_path_regex>
                     </fields>
                 </fast_assets>
             </groups>

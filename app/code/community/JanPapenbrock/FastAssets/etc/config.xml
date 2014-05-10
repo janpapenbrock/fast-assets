@@ -76,6 +76,7 @@
                 <js_enabled>0</js_enabled>
                 <compile_asynchronously>0</compile_asynchronously>
                 <store_files_in_media>0</store_files_in_media>
+                <external_asset_path_regex />
             </fast_assets>
         </dev>
     </default>
