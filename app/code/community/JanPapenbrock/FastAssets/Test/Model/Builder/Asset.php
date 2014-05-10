@@ -31,9 +31,6 @@ class JanPapenbrock_FastAssets_Test_Model_Builder_Asset extends EcomDev_PHPUnit_
      */
     public function isLocalIfConfigValueIsSet($assetName, $expectedResult)
     {
-        echo "\n".$assetName;
-        echo "\n".$expectedResult;
-
         $asset = Mage::getModel("fast_assets/builder_asset");
         $asset->setName($assetName);
         $local = $asset->isLocal();
