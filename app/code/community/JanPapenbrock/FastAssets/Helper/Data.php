@@ -11,6 +11,22 @@ class JanPapenbrock_FastAssets_Helper_Data extends Mage_Core_Helper_Abstract
 
     const MAGE_CONFIG_MERGE_FILES   = 'dev/%s/merge_files';
 
+    const LOG_FILE_NAME = "fast-assets_%s.log";
+
+    /**
+     * Writes a message to fast assets log, if logging is enabled.
+     *
+     * @param mixed   $message Message to log
+     * @param integer $level   Message level
+     *
+     * @return void
+     */
+    public function log($message, $level = null)
+    {
+        $logFileName = sprintf(self::LOG_FILE_NAME, date("Y-m-d"));
+        Mage::log($message, $level, $logFileName);
+    }
+
     /**
      * Check if asset generation is enabled.
      *

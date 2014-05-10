@@ -26,7 +26,7 @@ class JanPapenbrock_FastAssets_Model_Builder_Asset extends Mage_Core_Model_Abstr
             try {
                 return !preg_match($regex, $this->getName());
             } catch (Exception $e) {
-                echo $e->getMessage();
+                $this->_getHelper()->log("Could not execute external asset path regex: ".$e->getMessage());
             }
         }
         return true;
