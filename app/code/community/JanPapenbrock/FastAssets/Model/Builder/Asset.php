@@ -22,12 +22,11 @@ class JanPapenbrock_FastAssets_Model_Builder_Asset extends Mage_Core_Model_Abstr
     public function isLocal()
     {
         $regex = $this->_getHelper()->getExternalAssetPathRegex();
-        echo "regex: $regex";
         if ($regex != "") {
             try {
-                $isExternal = preg_match($regex, $this->getName());
-                return !$isExternal;
+                return !preg_match($regex, $this->getName());
             } catch (Exception $e) {
+                echo $e->getMessage();
             }
         }
         return true;
