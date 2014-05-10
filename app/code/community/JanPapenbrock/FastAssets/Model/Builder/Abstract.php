@@ -125,7 +125,7 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
         foreach ($assets as $asset) {
 
             /** @var JanPapenbrock_FastAssets_Model_Builder_Asset $assetObject */
-            $assetObject = Mage::getModel("fast_assets/asset");
+            $assetObject = Mage::getModel("fast_assets/builder_asset");
             $assetObject->setName($asset['name']);
 
             if ($assetObject->isLocal()) {
