@@ -123,9 +123,31 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
     {
         $contents = array();
         foreach ($assets as $asset) {
-            $url = $this->getAssetUrl($asset);
 
-            $content = $this->request($url);
+            /** @var JanPapenbrock_FastAssets_Model_Builder_Asset $assetObject */
+            $assetObject = Mage::getModel("fast_assets/asset");
+            $assetObject->setName($asset['name']);
+
+            if ($assetObject->isLocal()) {
+                $this->getHelper()->log(
+                    sprintf(
+                        "Fetching asset '%s' from local filesystem.",
+                        $asset['name']
+                    )
+                );
+                $content = file_get_contents($asset['name']);
+            } else {
+                $url = $this->getAssetUrl($asset);
+                $this->getHelper()->log(
+                    sprintf(
+                        "Fetching asset '%s' with web request from '%s'.",
+                        $asset['name'],
+                        $url
+                    )
+                );
+                $content = $this->request($url);
+            }
+
 
             // if one request fails, the merge fails
             if ($content === false) {
@@ -281,7 +303,7 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
     {
         $path = sprintf($this->_precompilePath, $hash);
         if ($prependDir) {
-            $path = self::DIR_NAME . DS . $path;
+            $path = self::DIR_NAME . "/" . $path;
         }
         return $path;
     }
