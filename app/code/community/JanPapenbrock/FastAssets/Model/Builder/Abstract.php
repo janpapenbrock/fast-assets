@@ -94,23 +94,6 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
     }
 
     /**
-     * Request contents of an URL, if it responds with status 200.
-     *
-     * @param string $url URL.
-     *
-     * @return bool|string
-     */
-    protected function request($url)
-    {
-        $client = new Zend_Http_Client($url);
-        $response = $client->request();
-        if (!$response || $response->getStatus() != 200) {
-            return false;
-        }
-        return $response->getBody();
-    }
-
-    /**
      * Merge the given asset URLs into a single asset file with the given hash id.
      *
      * @param JanPapenbrock_FastAssets_Model_Builder_Asset[] $assets Assets.
@@ -124,27 +107,7 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
         $contents = array();
         foreach ($assets as $asset) {
 
-            if ($asset->isLocal()) {
-                $this->getHelper()->log(
-                    sprintf(
-                        "Fetching asset '%s' from local filesystem path '%s'.",
-                        $asset->getName(),
-                        $asset->getPath()
-                    )
-                );
-                $content = file_get_contents($asset->getPath());
-            } else {
-                $url = $asset->getFastAssetsUrl();
-                $this->getHelper()->log(
-                    sprintf(
-                        "Fetching asset '%s' with web request from '%s'.",
-                        $asset->getName(),
-                        $url
-                    )
-                );
-                $content = $this->request($url);
-            }
-
+            $content = $asset->getContent();
 
             // if one request fails, the merge fails
             if ($content === false) {

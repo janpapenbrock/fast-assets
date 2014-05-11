@@ -26,6 +26,65 @@ class JanPapenbrock_FastAssets_Model_Builder_Asset extends Mage_Core_Model_Abstr
     }
 
     /**
+     * Get file content of current asset.
+     *
+     * @return string|false
+     */
+    public function getContent()
+    {
+        if ($this->isLocal()) {
+            $this->_getHelper()->log(
+                sprintf(
+                    "Fetching asset '%s' from local filesystem path '%s'.",
+                    $this->getName(),
+                    $this->getPath()
+                )
+            );
+            try {
+                $content = file_get_contents($this->getPath());
+            } catch (Exception $e) {
+                return false;
+            }
+
+        } else {
+            $url = $this->getFastAssetsUrl();
+            $this->_getHelper()->log(
+                sprintf(
+                    "Fetching asset '%s' with web request from '%s'.",
+                    $this->getName(),
+                    $url
+                )
+            );
+            $content = $this->request($url);
+        }
+
+        if ($content === false) {
+            return false;
+        }
+
+        # $content = $this->patchContent($content);
+
+        return $content;
+    }
+
+    /**
+     * Request contents of an URL, if it responds with status 200.
+     *
+     * @param string $url URL.
+     *
+     * @return bool|string
+     */
+    protected function request($url)
+    {
+        $client = new Zend_Http_Client($url);
+        $response = $client->request();
+        if (!$response || $response->getStatus() != 200) {
+            return false;
+        }
+        return $response->getBody();
+    }
+
+    /**
      * Can this asset be merged?
      *
      * @param string[] $allowedTypes List of allowed asset types.
