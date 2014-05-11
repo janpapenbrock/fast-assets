@@ -459,6 +459,9 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
         if (!isset($asset['fast_assets_url'])) {
             $type = $asset['type'];
             $name = $asset['name'];
+
+            $name = str_replace(DS, "/", $name);
+
             if (strpos($type, "skin") !== false) {
                 $designPackage = Mage::getDesign();
                 $asset['fast_assets_url'] =  $designPackage->getSkinUrl($name, array());
