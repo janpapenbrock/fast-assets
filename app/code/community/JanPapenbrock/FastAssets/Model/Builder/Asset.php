@@ -5,6 +5,7 @@
  *
  * @method string getType
  * @method string getName
+ * @method setPath(string)
  */
 class JanPapenbrock_FastAssets_Model_Builder_Asset extends Mage_Core_Model_Abstract
 {
@@ -30,5 +31,43 @@ class JanPapenbrock_FastAssets_Model_Builder_Asset extends Mage_Core_Model_Abstr
             }
         }
         return true;
+    }
+
+    /**
+     * Get filesystem path to this asset.
+     *
+     * @return string
+     */
+    public function getPath()
+    {
+        if (!$this->hasPath()) {
+            $baseUrl  = Mage::getBaseUrl();
+            $basePath = str_replace($baseUrl, "", $this->getName());
+            $this->setPath(Mage::getBaseDir() . DS . $basePath);
+        }
+        return parent::getPath();
+    }
+
+    /**
+     * Get URL for this asset.
+     *
+     * @return string
+     */
+    public function getFastAssetsUrl()
+    {
+        if (!$this->hasFastAssetsUrl()) {
+            $type = $this->getType();
+            $name = $this->getName();
+            if (strpos($type, "skin") !== false) {
+                $designPackage = Mage::getDesign();
+                $url =  $designPackage->getSkinUrl($name, array());
+            } elseif (strpos($type, 'js') === 0) {
+                $url =  Mage::getBaseUrl('js') . $name;
+            } else {
+                $url =  Mage::getBaseUrl() . $name;
+            }
+            $this->setFastAssetsUrl($url);
+        }
+        return parent::getFastAssetsUrl();
     }
 }

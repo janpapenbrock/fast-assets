@@ -126,22 +126,23 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
 
             /** @var JanPapenbrock_FastAssets_Model_Builder_Asset $assetObject */
             $assetObject = Mage::getModel("fast_assets/builder_asset");
-            $assetObject->setName($asset['name']);
+            $assetObject->setData($asset);
 
             if ($assetObject->isLocal()) {
                 $this->getHelper()->log(
                     sprintf(
-                        "Fetching asset '%s' from local filesystem.",
-                        $asset['name']
+                        "Fetching asset '%s' from local filesystem path '%s'.",
+                        $assetObject->getName(),
+                        $assetObject->getPath()
                     )
                 );
-                $content = file_get_contents($asset['name']);
+                $content = file_get_contents($assetObject->getPath());
             } else {
-                $url = $this->getAssetUrl($asset);
+                $url = $assetObject->getFastAssetsUrl();
                 $this->getHelper()->log(
                     sprintf(
                         "Fetching asset '%s' with web request from '%s'.",
-                        $asset['name'],
+                        $assetObject->getName(),
                         $url
                     )
                 );
@@ -151,6 +152,12 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
 
             // if one request fails, the merge fails
             if ($content === false) {
+                $this->getHelper()->log(
+                    sprintf(
+                        "Error when getting asset file '%s'. Terminating.",
+                        $asset['name']
+                    )
+                );
                 return false;
             }
 
