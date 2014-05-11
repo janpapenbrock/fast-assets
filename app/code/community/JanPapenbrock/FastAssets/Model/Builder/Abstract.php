@@ -394,23 +394,15 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
             $assets  = array();
             $items = $head->getData('items');
             foreach ($items as $item) {
-                if (!is_null($item['if']) || !is_null($item['cond']) || is_null($item['name'])) {
-                    continue;
-                }
-                if (!in_array($item['type'], $this->_itemTypes)) {
-                    continue;
-                }
-                if (strpos($item['type'], "css") !== false && $item['params'] && $item['params'] != 'media="all"') {
-                    continue;
-                }
 
-                if (strpos($item['name'], "//") !== false) {
+                /** @var JanPapenbrock_FastAssets_Model_Builder_Asset $asset */
+                $asset = Mage::getModel("fast_assets/builder_asset");
+                $asset->setData($item);
+
+                if (!$asset->canBeMerged($this->_itemTypes)) {
+                    $this->getHelper()->log(sprintf("Cannot merge asset '%s'.", $asset->getName()));
                     continue;
                 }
-
-                // we dont want to store cond and if data
-                unset($item['cond']);
-                unset($item['if']);
 
                 // all data should be string
                 foreach ($item as $key => $data) {

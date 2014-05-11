@@ -5,6 +5,9 @@
  *
  * @method string getType
  * @method string getName
+ * @method string getIf
+ * @method string getCond
+ * @method string getParams
  * @method setPath(string)
  */
 class JanPapenbrock_FastAssets_Model_Builder_Asset extends Mage_Core_Model_Abstract
@@ -20,6 +23,43 @@ class JanPapenbrock_FastAssets_Model_Builder_Asset extends Mage_Core_Model_Abstr
         return Mage::helper("fast_assets");
     }
 
+    /**
+     * Can this asset be merged?
+     *
+     * @param string[] $allowedTypes List of allowed asset types.
+     *
+     * @return bool
+     */
+    public function canBeMerged($allowedTypes)
+    {
+        if (is_null($this->getName())) {
+            return false;
+        }
+        // do not merge conditional assets
+        if (!is_null($this->getIf()) || !is_null($this->getCond())) {
+            return false;
+        }
+        // only merge certain asset types
+        if (!in_array($this->getType(), $allowedTypes)) {
+            return false;
+        }
+        // do not merge CSS assets for specific media
+        if (strpos($this->getType(), "css") !== false && $this->getParams() && $this->getParams() != 'media="all"') {
+            return false;
+        }
+        // do not merge external assets
+        if (strpos($this->getName(), "//") !== false) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Is this asset a locally available file?
+     *
+     * @return bool
+     */
     public function isLocal()
     {
         $regex = $this->_getHelper()->getExternalAssetPathRegex();
