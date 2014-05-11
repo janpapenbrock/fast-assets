@@ -394,7 +394,7 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
             $assets  = array();
             $items = $head->getData('items');
             foreach ($items as $item) {
-                if (!is_null($item['cond']) && !$this->getData($item['cond']) || !isset($item['name'])) {
+                if (!is_null($item['if']) || !is_null($item['cond']) || is_null($item['name'])) {
                     continue;
                 }
                 if (!in_array($item['type'], $this->_itemTypes)) {
