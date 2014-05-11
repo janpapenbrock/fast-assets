@@ -141,7 +141,6 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
             }
 
             if ($content) {
-                $content = $this->patchAssetContent($asset, $content);
                 $contents[] = $content;
             }
         }
@@ -453,7 +452,7 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
      *
      * @return string
      */
-    protected function getBaseUrl()
+    public function getBaseUrl()
     {
         $baseUrl = $this->getData('base_url');
         if (!$baseUrl) {
@@ -463,78 +462,4 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
         return $baseUrl;
     }
 
-    /**
-     * Patch the content, based on asset types.
-     *
-     * @param JanPapenbrock_FastAssets_Model_Builder_Asset $asset   Asset.
-     * @param string                                       $content Asset file contents.
-     *
-     * @return string
-     */
-    protected function patchAssetContent($asset, $content)
-    {
-        $patchedContent = $content;
-        if ($this->_type == 'css') {
-            $baseUrl   = $this->getBaseUrl();
-            $assetUrl  = $asset->getFastAssetsUrl();
-            $assetPath = str_replace($baseUrl, "/", $assetUrl);
-
-            if (preg_match_all('/url\((.*)\)/iUs', $content, $matches)) {
-                $paths = $matches[1];
-
-                foreach ($paths as $path) {
-                    $absolutePath = $this->mergePaths($assetPath, $path);
-                    $patchedContent = str_replace($path, $absolutePath, $patchedContent);
-                }
-            }
-        }
-
-        return $patchedContent;
-    }
-
-    /**
-     * Merge the given asset base path,
-     *   e.g. the file path of a css file: /skin/frontend/default/default/css/style.css
-     * and a relative path,
-     *   e.g. an image inside an css file:  ../images/my_image.png
-     * to return an absolute path instead of the given relative path,
-     *   e.g. /skin/frontend/default/default/images/my_image.png
-     *
-     * If an absolute path is given, the path is returned unchanged.
-     *
-     * @param string $assetBasePath Asset file path.
-     * @param string $relativePath  Contained path.
-     *
-     * @return string
-     */
-    protected function mergePaths($assetBasePath, $relativePath)
-    {
-        $normalizedPath = str_replace(array('"', "'"), "", $relativePath);
-        $normalizedPath = trim($normalizedPath);
-
-        if (strpos($normalizedPath, "//") !== false) {
-            return $relativePath;
-        }
-
-        if (strpos($normalizedPath, "/") === 0) {
-            return $relativePath;
-        }
-
-        $assetDir       = dirname($assetBasePath);
-        $assetPathParts = explode("/", $assetDir);
-
-        $currentPathParts = $assetPathParts;
-
-        $pathParts = explode("/", $normalizedPath);
-        foreach ($pathParts as $part) {
-            if ($part == "..") {
-                $currentPathParts = array_slice($currentPathParts, 0, -1);
-            } else {
-                $currentPathParts[] = $part;
-            }
-        }
-
-        $absolutePath = implode("/", $currentPathParts);
-        return $absolutePath;
-    }
 }

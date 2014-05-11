@@ -8,9 +8,12 @@
  * @method string getIf
  * @method string getCond
  * @method string getParams
+ * @method bool hasContent
+ * @method bool hasPath
  * @method setPath(string)
  * @method setName(string)
  * @method setType(string)
+ * @method setContent(string)
  * @method setBuilder(JanPapenbrock_FastAssets_Model_Builder_Abstract $builder)
  * @method JanPapenbrock_FastAssets_Model_Builder_Abstract getBuilder
  */
@@ -34,39 +37,42 @@ class JanPapenbrock_FastAssets_Model_Builder_Asset extends Mage_Core_Model_Abstr
      */
     public function getContent()
     {
-        if ($this->isLocal()) {
-            $this->_getHelper()->log(
-                sprintf(
-                    "Fetching asset '%s' from local filesystem path '%s'.",
-                    $this->getName(),
-                    $this->getPath()
-                )
-            );
-            try {
-                $content = file_get_contents($this->getPath());
-            } catch (Exception $e) {
+        if (!$this->hasContent()) {
+            if ($this->isLocal()) {
+                $this->_getHelper()->log(
+                    sprintf(
+                        "Fetching asset '%s' from local filesystem path '%s'.",
+                        $this->getName(),
+                        $this->getPath()
+                    )
+                );
+                try {
+                    $content = file_get_contents($this->getPath());
+                } catch (Exception $e) {
+                    return false;
+                }
+
+            } else {
+                $url = $this->getFastAssetsUrl();
+                $this->_getHelper()->log(
+                    sprintf(
+                        "Fetching asset '%s' with web request from '%s'.",
+                        $this->getName(),
+                        $url
+                    )
+                );
+                $content = $this->request($url);
+            }
+
+            if ($content === false) {
                 return false;
             }
 
-        } else {
-            $url = $this->getFastAssetsUrl();
-            $this->_getHelper()->log(
-                sprintf(
-                    "Fetching asset '%s' with web request from '%s'.",
-                    $this->getName(),
-                    $url
-                )
-            );
-            $content = $this->request($url);
+            $this->setContent($content);
+            $this->patchContent();
         }
 
-        if ($content === false) {
-            return false;
-        }
-
-        # $content = $this->patchContent($content);
-
-        return $content;
+        return parent::getContent();
     }
 
     /**
@@ -174,5 +180,79 @@ class JanPapenbrock_FastAssets_Model_Builder_Asset extends Mage_Core_Model_Abstr
             $this->setFastAssetsUrl($url);
         }
         return parent::getFastAssetsUrl();
+    }
+
+
+    /**
+     * Patch the content, based on asset types.
+     *
+     * @return string
+     */
+    protected function patchContent()
+    {
+        $content = $this->getContent();
+        $patchedContent = $content;
+        if ($this->getBuilder()->getType() == 'css') {
+            $baseUrl   = $this->getBuilder()->getBaseUrl();
+            $assetUrl  = $this->getFastAssetsUrl();
+            $assetPath = str_replace($baseUrl, "/", $assetUrl);
+
+            if (preg_match_all('/url\((.*)\)/iUs', $content, $matches)) {
+                $paths = $matches[1];
+
+                foreach ($paths as $path) {
+                    $absolutePath = $this->mergePaths($assetPath, $path);
+                    $patchedContent = str_replace($path, $absolutePath, $patchedContent);
+                }
+            }
+        }
+
+        $this->setContent($patchedContent);
+    }
+
+    /**
+     * Merge the given asset base path,
+     *   e.g. the file path of a css file: /skin/frontend/default/default/css/style.css
+     * and a relative path,
+     *   e.g. an image inside an css file:  ../images/my_image.png
+     * to return an absolute path instead of the given relative path,
+     *   e.g. /skin/frontend/default/default/images/my_image.png
+     *
+     * If an absolute path is given, the path is returned unchanged.
+     *
+     * @param string $assetBasePath Asset file path.
+     * @param string $relativePath  Contained path.
+     *
+     * @return string
+     */
+    protected function mergePaths($assetBasePath, $relativePath)
+    {
+        $normalizedPath = str_replace(array('"', "'"), "", $relativePath);
+        $normalizedPath = trim($normalizedPath);
+
+        if (strpos($normalizedPath, "//") !== false) {
+            return $relativePath;
+        }
+
+        if (strpos($normalizedPath, "/") === 0) {
+            return $relativePath;
+        }
+
+        $assetDir       = dirname($assetBasePath);
+        $assetPathParts = explode("/", $assetDir);
+
+        $currentPathParts = $assetPathParts;
+
+        $pathParts = explode("/", $normalizedPath);
+        foreach ($pathParts as $part) {
+            if ($part == "..") {
+                $currentPathParts = array_slice($currentPathParts, 0, -1);
+            } else {
+                $currentPathParts[] = $part;
+            }
+        }
+
+        $absolutePath = implode("/", $currentPathParts);
+        return $absolutePath;
     }
 }
