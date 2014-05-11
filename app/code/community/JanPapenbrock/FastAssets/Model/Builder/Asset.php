@@ -42,7 +42,7 @@ class JanPapenbrock_FastAssets_Model_Builder_Asset extends Mage_Core_Model_Abstr
     {
         if (!$this->hasPath()) {
             $baseUrl  = Mage::getBaseUrl();
-            $basePath = str_replace($baseUrl, "", $this->getName());
+            $basePath = str_replace($baseUrl, "", $this->getFastAssetsUrl());
             $this->setPath(Mage::getBaseDir() . DS . $basePath);
         }
         return parent::getPath();
@@ -60,11 +60,11 @@ class JanPapenbrock_FastAssets_Model_Builder_Asset extends Mage_Core_Model_Abstr
             $name = $this->getName();
             if (strpos($type, "skin") !== false) {
                 $designPackage = Mage::getDesign();
-                $url =  $designPackage->getSkinUrl($name, array());
+                $url = $designPackage->getSkinUrl($name, array());
             } elseif (strpos($type, 'js') === 0) {
-                $url =  Mage::getBaseUrl('js') . $name;
+                $url = Mage::getBaseUrl('js') . $name;
             } else {
-                $url =  Mage::getBaseUrl() . $name;
+                $url = Mage::getBaseUrl() . $name;
             }
             $this->setFastAssetsUrl($url);
         }
