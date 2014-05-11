@@ -157,6 +157,25 @@ class JanPapenbrock_FastAssets_Model_Builder_Asset extends Mage_Core_Model_Abstr
     }
 
     /**
+     * Calculate asset hash based on path and filemtime.
+     *
+     * @return string
+     */
+    public function getHash()
+    {
+        if (!$this->hasHash()) {
+            $path = $this->getPath();
+            try {
+                $mTime = filemtime($path);
+            } catch (Exception $e) {
+                $mTime = sha1($path);
+            }
+            return md5($path).md5($mTime);
+        }
+        return parent::getHash();
+    }
+
+    /**
      * Get URL for this asset.
      *
      * @return string

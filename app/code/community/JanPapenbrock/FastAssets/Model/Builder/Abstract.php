@@ -413,23 +413,9 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
     }
 
     /**
-     * Calculate asset hash based on path and filemtime.
-     *
-     * @param JanPapenbrock_FastAssets_Model_Builder_Asset $asset Asset.
-     *
-     * @return string
-     */
-    protected function calculateAssetHash($asset)
-    {
-        $path = $asset->getPath();
-        $mTime = filemtime($path);
-        return md5($path).md5($mTime);
-    }
-
-    /**
      * Calculate hash for a group of assets.
      *
-     * @param array $assets Assets.
+     * @param JanPapenbrock_FastAssets_Model_Builder_Asset[] $assets Assets.
      *
      * @return string
      */
@@ -437,7 +423,7 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
     {
         $hashes = array();
         foreach ($assets as $asset) {
-            $hashes[] = $this->calculateAssetHash($asset);
+            $hashes[] = $asset->getHash();
         }
 
         $concatenatedHashes = implode("", $hashes);
