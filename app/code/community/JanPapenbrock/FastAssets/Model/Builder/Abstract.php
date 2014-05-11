@@ -400,6 +400,9 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
                 if (!in_array($item['type'], $this->_itemTypes)) {
                     continue;
                 }
+                if (strpos($item['type'], "css") !== false && $item['params'] && $item['params'] != 'media="all"') {
+                    continue;
+                }
 
                 if (strpos($item['name'], "//") !== false) {
                     continue;
