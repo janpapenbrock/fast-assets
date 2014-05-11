@@ -42,8 +42,11 @@ class JanPapenbrock_FastAssets_Model_Builder_Asset extends Mage_Core_Model_Abstr
     {
         if (!$this->hasPath()) {
             $baseUrl  = Mage::getBaseUrl();
+            $this->_getHelper()->log("base url ".$baseUrl);
             $basePath = str_replace($baseUrl, "", $this->getFastAssetsUrl());
+            $this->_getHelper()->log("base path ".$basePath);
             $this->setPath(Mage::getBaseDir() . DS . $basePath);
+            $this->_getHelper()->log(Mage::getBaseDir() . DS . $basePath);
         }
         return parent::getPath();
     }
