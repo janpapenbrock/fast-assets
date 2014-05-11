@@ -1,0 +1,2 @@
+config:
+  default/dev/fast_assets/external_asset_path_regex: '/.*\.php$/'

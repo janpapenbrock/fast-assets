@@ -43,6 +43,26 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
     }
 
     /**
+     * Get builder type.
+     *
+     * @return string
+     */
+    public function getType()
+    {
+        return $this->_type;
+    }
+
+    /**
+     * Get builder asset types.
+     *
+     * @return string[]
+     */
+    public function getAssetTypes()
+    {
+        return $this->_itemTypes;
+    }
+
+    /**
      * Merge assets in layout 'head' and replace them with single merged asset.
      *
      * @return string
@@ -94,28 +114,11 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
     }
 
     /**
-     * Request contents of an URL, if it responds with status 200.
-     *
-     * @param string $url URL.
-     *
-     * @return bool|string
-     */
-    protected function request($url)
-    {
-        $client = new Zend_Http_Client($url);
-        $response = $client->request();
-        if (!$response || $response->getStatus() != 200) {
-            return false;
-        }
-        return $response->getBody();
-    }
-
-    /**
      * Merge the given asset URLs into a single asset file with the given hash id.
      *
-     * @param array       $assets Assets.
-     * @param string      $hash   Asset file hash.
-     * @param string|null $saveTo Asset file target. Is calculated if null given.
+     * @param JanPapenbrock_FastAssets_Model_Builder_Asset[] $assets Assets.
+     * @param string                                         $hash   Asset file hash.
+     * @param string|null                                    $saveTo Asset file target. Is calculated if null given.
      *
      * @return bool|string
      */
@@ -123,17 +126,21 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
     {
         $contents = array();
         foreach ($assets as $asset) {
-            $url = $this->getAssetUrl($asset);
 
-            $content = $this->request($url);
+            $content = $asset->getContent();
 
             // if one request fails, the merge fails
             if ($content === false) {
+                $this->getHelper()->log(
+                    sprintf(
+                        "Error when getting asset file '%s'. Terminating.",
+                        $asset['name']
+                    )
+                );
                 return false;
             }
 
             if ($content) {
-                $content = $this->patchAssetContent($asset, $content);
                 $contents[] = $content;
             }
         }
@@ -281,7 +288,7 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
     {
         $path = sprintf($this->_precompilePath, $hash);
         if ($prependDir) {
-            $path = self::DIR_NAME . DS . $path;
+            $path = self::DIR_NAME . "/" . $path;
         }
         return $path;
     }
@@ -306,22 +313,22 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
      * @param string $name Asset name.
      * @param string $hash Asset hash.
      *
-     * @return string
+     * @return string|null
      */
     protected function addAsset($name, $hash)
     {
         $head = $this->getHead();
 
         if (!$head) {
-            return;
+            return null;
         }
 
         if ($this->getHelper()->storeInMediaDir()) {
-            $asset = array(
-                'name' => $this->getPathForHash($hash),
-                'type' => 'custom'
-            );
-            $url = $this->getAssetUrl($asset);
+            /** @var JanPapenbrock_FastAssets_Model_Builder_Asset $asset */
+            $asset = Mage::getModel("fast_assets/builder_asset");
+            $asset->setName($this->getPathForHash($hash));
+            $asset->setType("custom");
+            $url = $asset->getFastAssetsUrl();
             $assetHtml = sprintf($this->_assetBlock, $url);
             return $assetHtml;
         } else {
@@ -349,7 +356,7 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
      * Get all assets from layout head matching the current builder's item types.
      * Only local assets are allowed.
      *
-     * @return array
+     * @return JanPapenbrock_FastAssets_Model_Builder_Asset[]
      */
     protected function getAssets()
     {
@@ -365,27 +372,17 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
             $assets  = array();
             $items = $head->getData('items');
             foreach ($items as $item) {
-                if (!is_null($item['cond']) && !$this->getData($item['cond']) || !isset($item['name'])) {
+
+                /** @var JanPapenbrock_FastAssets_Model_Builder_Asset $asset */
+                $asset = Mage::getModel("fast_assets/builder_asset");
+                $asset->setData($item);
+                $asset->setBuilder($this);
+
+                if (!$asset->canBeMerged($this->_itemTypes)) {
                     continue;
                 }
-                if (!in_array($item['type'], $this->_itemTypes)) {
-                    continue;
-                }
 
-                if (strpos($item['name'], "//") !== false) {
-                    continue;
-                }
-
-                // we dont want to store cond and if data
-                unset($item['cond']);
-                unset($item['if']);
-
-                // all data should be string
-                foreach ($item as $key => $data) {
-                    $item[$key] = (string) $data;
-                }
-
-                $assets[] = $item;
+                $assets[] = $asset;
             }
 
             $this->_assets = $assets;
@@ -408,69 +405,16 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
         }
 
         $urls = array();
-        foreach ($assets as $assetKey => $asset) {
-            $urls[] = $this->getAssetUrl($asset);
-            $assets[$assetKey] = $asset;
+        foreach ($assets as $asset) {
+            $urls[] = $asset->getFastAssetsUrl();
         }
         return $urls;
     }
 
     /**
-     * Get URL for a single asset.
-     *
-     * @param array &$asset Asset.
-     *
-     * @return string
-     */
-    protected function getAssetUrl(&$asset)
-    {
-        if (!isset($asset['fast_assets_url'])) {
-            $type = $asset['type'];
-            $name = $asset['name'];
-            if (strpos($type, "skin") !== false) {
-                $designPackage = Mage::getDesign();
-                $asset['fast_assets_url'] =  $designPackage->getSkinUrl($name, array());
-            } elseif (strpos($type, 'js') === 0) {
-                $asset['fast_assets_url'] =  Mage::getBaseUrl('js') . $name;
-            } else {
-                $asset['fast_assets_url'] =  Mage::getBaseUrl() . $name;
-            }
-        }
-        return $asset['fast_assets_url'];
-    }
-
-    /**
-     * Get filesystem path to an asset.
-     *
-     * @param array $asset Asset.
-     *
-     * @return string
-     */
-    protected function getAssetPath($asset)
-    {
-        $baseUrl  = Mage::getBaseUrl();
-        $basePath = str_replace($baseUrl, "", $asset['name']);
-        return Mage::getBaseDir() . DS . $basePath;
-    }
-
-    /**
-     * Calculate asset hash based on path and filemtime.
-     *
-     * @param string $asset Asset.
-     *
-     * @return string
-     */
-    protected function calculateAssetHash($asset)
-    {
-        $path = $this->getAssetPath($asset);
-        $mTime = filemtime($path);
-        return md5($path).md5($mTime);
-    }
-
-    /**
      * Calculate hash for a group of assets.
      *
-     * @param array $assets Assets.
+     * @param JanPapenbrock_FastAssets_Model_Builder_Asset[] $assets Assets.
      *
      * @return string
      */
@@ -478,7 +422,7 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
     {
         $hashes = array();
         foreach ($assets as $asset) {
-            $hashes[] = $this->calculateAssetHash($asset);
+            $hashes[] = $asset->getHash();
         }
 
         $concatenatedHashes = implode("", $hashes);
@@ -493,7 +437,7 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
      *
      * @return string
      */
-    protected function getBaseUrl()
+    public function getBaseUrl()
     {
         $baseUrl = $this->getData('base_url');
         if (!$baseUrl) {
@@ -503,78 +447,4 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
         return $baseUrl;
     }
 
-    /**
-     * Patch the content, based on asset types.
-     *
-     * @param array  $asset   Asset.
-     * @param string $content Asset file contents.
-     *
-     * @return string
-     */
-    protected function patchAssetContent($asset, $content)
-    {
-        $patchedContent = $content;
-        if ($this->_type == 'css') {
-            $baseUrl   = $this->getBaseUrl();
-            $assetUrl  = $this->getAssetUrl($asset);
-            $assetPath = str_replace($baseUrl, "/", $assetUrl);
-
-            if (preg_match_all('/url\((.*)\)/iUs', $content, $matches)) {
-                $paths = $matches[1];
-
-                foreach ($paths as $path) {
-                    $absolutePath = $this->mergePaths($assetPath, $path);
-                    $patchedContent = str_replace($path, $absolutePath, $patchedContent);
-                }
-            }
-        }
-
-        return $patchedContent;
-    }
-
-    /**
-     * Merge the given asset base path,
-     *   e.g. the file path of a css file: /skin/frontend/default/default/css/style.css
-     * and a relative path,
-     *   e.g. an image inside an css file:  ../images/my_image.png
-     * to return an absolute path instead of the given relative path,
-     *   e.g. /skin/frontend/default/default/images/my_image.png
-     *
-     * If an absolute path is given, the path is returned unchanged.
-     *
-     * @param string $assetBasePath Asset file path.
-     * @param string $relativePath  Contained path.
-     *
-     * @return string
-     */
-    protected function mergePaths($assetBasePath, $relativePath)
-    {
-        $normalizedPath = str_replace(array('"', "'"), "", $relativePath);
-        $normalizedPath = trim($normalizedPath);
-
-        if (strpos($normalizedPath, "//") !== false) {
-            return $relativePath;
-        }
-
-        if (strpos($normalizedPath, "/") === 0) {
-            return $relativePath;
-        }
-
-        $assetDir       = dirname($assetBasePath);
-        $assetPathParts = explode("/", $assetDir);
-
-        $currentPathParts = $assetPathParts;
-
-        $pathParts = explode("/", $normalizedPath);
-        foreach ($pathParts as $part) {
-            if ($part == "..") {
-                $currentPathParts = array_slice($currentPathParts, 0, -1);
-            } else {
-                $currentPathParts[] = $part;
-            }
-        }
-
-        $absolutePath = implode("/", $currentPathParts);
-        return $absolutePath;
-    }
 }
