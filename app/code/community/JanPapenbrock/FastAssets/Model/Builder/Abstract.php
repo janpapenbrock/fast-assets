@@ -379,7 +379,6 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
                 $asset->setBuilder($this);
 
                 if (!$asset->canBeMerged($this->_itemTypes)) {
-                    $this->getHelper()->log(sprintf("Cannot merge asset '%s'.", $asset->getName()));
                     continue;
                 }
 

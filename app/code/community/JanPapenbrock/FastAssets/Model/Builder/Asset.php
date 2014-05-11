@@ -100,22 +100,26 @@ class JanPapenbrock_FastAssets_Model_Builder_Asset extends Mage_Core_Model_Abstr
     public function canBeMerged()
     {
         if (is_null($this->getName())) {
-            return false;
-        }
-        // do not merge conditional assets
-        if (!is_null($this->getIf()) || !is_null($this->getCond())) {
+            $this->_getHelper()->log(sprintf("Cannot merge asset '%s' because it has no name.", $this->getName()));
             return false;
         }
         // only merge certain asset types
         if (!in_array($this->getType(), $this->getBuilder()->getAssetTypes())) {
             return false;
         }
+        // do not merge conditional assets
+        if (!is_null($this->getIf()) || !is_null($this->getCond())) {
+            $this->_getHelper()->log(sprintf("Cannot merge asset '%s' because of conditions.", $this->getName()));
+            return false;
+        }
         // do not merge CSS assets for specific media
         if (strpos($this->getType(), "css") !== false && $this->getParams() && $this->getParams() != 'media="all"') {
+            $this->_getHelper()->log(sprintf("Cannot merge asset '%s' because of media params.", $this->getName()));
             return false;
         }
         // do not merge external assets
         if (strpos($this->getName(), "//") !== false) {
+            $this->_getHelper()->log(sprintf("Cannot merge asset '%s' because it is an external file.", $this->getName()));
             return false;
         }
 
