@@ -9,6 +9,8 @@
  * @method string getCond
  * @method string getParams
  * @method setPath(string)
+ * @method setName(string)
+ * @method setType(string)
  */
 class JanPapenbrock_FastAssets_Model_Builder_Asset extends Mage_Core_Model_Abstract
 {
