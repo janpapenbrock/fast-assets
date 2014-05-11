@@ -43,6 +43,26 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
     }
 
     /**
+     * Get builder type.
+     *
+     * @return string
+     */
+    public function getType()
+    {
+        return $this->_type;
+    }
+
+    /**
+     * Get builder asset types.
+     *
+     * @return string[]
+     */
+    public function getAssetTypes()
+    {
+        return $this->_itemTypes;
+    }
+
+    /**
      * Merge assets in layout 'head' and replace them with single merged asset.
      *
      * @return string
@@ -357,6 +377,7 @@ abstract class JanPapenbrock_FastAssets_Model_Builder_Abstract extends Mage_Core
                 /** @var JanPapenbrock_FastAssets_Model_Builder_Asset $asset */
                 $asset = Mage::getModel("fast_assets/builder_asset");
                 $asset->setData($item);
+                $asset->setBuilder($this);
 
                 if (!$asset->canBeMerged($this->_itemTypes)) {
                     $this->getHelper()->log(sprintf("Cannot merge asset '%s'.", $asset->getName()));

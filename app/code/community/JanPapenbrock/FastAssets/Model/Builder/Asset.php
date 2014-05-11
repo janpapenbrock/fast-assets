@@ -11,6 +11,8 @@
  * @method setPath(string)
  * @method setName(string)
  * @method setType(string)
+ * @method setBuilder(JanPapenbrock_FastAssets_Model_Builder_Abstract $builder)
+ * @method JanPapenbrock_FastAssets_Model_Builder_Abstract getBuilder
  */
 class JanPapenbrock_FastAssets_Model_Builder_Asset extends Mage_Core_Model_Abstract
 {
@@ -87,11 +89,9 @@ class JanPapenbrock_FastAssets_Model_Builder_Asset extends Mage_Core_Model_Abstr
     /**
      * Can this asset be merged?
      *
-     * @param string[] $allowedTypes List of allowed asset types.
-     *
      * @return bool
      */
-    public function canBeMerged($allowedTypes)
+    public function canBeMerged()
     {
         if (is_null($this->getName())) {
             return false;
@@ -101,7 +101,7 @@ class JanPapenbrock_FastAssets_Model_Builder_Asset extends Mage_Core_Model_Abstr
             return false;
         }
         // only merge certain asset types
-        if (!in_array($this->getType(), $allowedTypes)) {
+        if (!in_array($this->getType(), $this->getBuilder()->getAssetTypes())) {
             return false;
         }
         // do not merge CSS assets for specific media
